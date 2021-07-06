@@ -123,7 +123,7 @@ namespace FanStorey.Controllers
             }
             return View(story);
         }
-        // Test comment
+
         // GET: Stories/Delete/5
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
