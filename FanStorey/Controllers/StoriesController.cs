@@ -23,7 +23,10 @@ namespace FanStorey.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index() => View(await _context.Story.ToListAsync());
+        public async Task<IActionResult> Index()
+        {
+            return View(await _context.Story.ToListAsync());
+        }
 
         public async Task<IActionResult> UserStories()
         {

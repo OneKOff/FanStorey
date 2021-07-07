@@ -25,24 +25,6 @@ namespace FanStorey.Controllers
             return View(await _context.Fandom.ToListAsync());
         }
 
-        // GET: Fandoms/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var fandom = await _context.Fandom
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (fandom == null)
-            {
-                return NotFound();
-            }
-
-            return View(fandom);
-        }
-
         // GET: Fandoms/Create
         public IActionResult Create()
         {

@@ -53,7 +53,10 @@ namespace FanStorey.Controllers
             return View(chapter);
         }
 
-        public IActionResult Create() => View();
+        public IActionResult Create()
+        {
+            return View();
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
