@@ -26,6 +26,8 @@ namespace FanStorey.Controllers
         // GET: Stories
         public async Task<IActionResult> Index()
         {
+            //IdentityUser identityUser = await _userManager.GetUserAsync(HttpContext.User);
+            //await _context.Story.Where(m => m.Author == identityUser).ToListAsync();
             return View(await _context.Story.ToListAsync());
         }
 
@@ -86,7 +88,11 @@ namespace FanStorey.Controllers
             {
                 return NotFound();
             }
-            return View(story);
+            if (story.Author == await _userManager.GetUserAsync(HttpContext.User))
+            {
+                return View(story);
+            }
+            return NotFound();
         }
 
         // POST: Stories/Edit/5

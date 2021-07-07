@@ -19,14 +19,24 @@ namespace FanStorey.Controllers
             _context = context;
         }
 
-        // GET: Chapters
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            return View(await _context.Chapter.ToListAsync());
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var story = await _context.Story
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (story == null)
+            {
+                return NotFound();
+            }
+
+            return View(await _context.Chapter.Where(m => m.StoryFrom == story).ToListAsync());
         }
 
-        // GET: Chapters/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Read(int? id)
         {
             if (id == null)
             {
@@ -43,10 +53,11 @@ namespace FanStorey.Controllers
             return View(chapter);
         }
 
-        // GET: Chapters/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int? id)
         {
-            return View();
+            Chapter chapter = new Chapter();
+            chapter.StoryFrom = await _context.Story.FindAsync(id);
+            return View(chapter);
         }
 
         // POST: Chapters/Create
@@ -54,10 +65,13 @@ namespace FanStorey.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ChapterTitle,ChapterText,ImagePath")] Chapter chapter)
+        public async Task<IActionResult> Create([Bind("Id,Title,ChapterText,StoryFrom")] Chapter chapter)
         {
             if (ModelState.IsValid)
             {
+                chapter.PostDate = DateTime.Now;
+                chapter.LastUpdateDate = DateTime.Now;
+
                 _context.Add(chapter);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -86,7 +100,7 @@ namespace FanStorey.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ChapterTitle,ChapterText,ImagePath")] Chapter chapter)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ChapterText")] Chapter chapter)
         {
             if (id != chapter.Id)
             {

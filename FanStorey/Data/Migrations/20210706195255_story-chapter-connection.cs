@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FanStorey.Data.Migrations
 {
-    public partial class initialcreate : Migration
+    public partial class storychapterconnection : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -27,11 +28,20 @@ namespace FanStorey.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StoryFandomId = table.Column<int>(type: "int", nullable: true)
+                    StoryFandomId = table.Column<int>(type: "int", nullable: true),
+                    AuthorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    PostDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdateDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Story", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Story_AspNetUsers_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Story_Fandom_StoryFandomId",
                         column: x => x.StoryFandomId,
@@ -46,26 +56,32 @@ namespace FanStorey.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ChapterTitle = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ChapterText = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StoryId = table.Column<int>(type: "int", nullable: true)
+                    PostDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StoryFromId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Chapter", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Chapter_Story_StoryId",
-                        column: x => x.StoryId,
+                        name: "FK_Chapter_Story_StoryFromId",
+                        column: x => x.StoryFromId,
                         principalTable: "Story",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Chapter_StoryId",
+                name: "IX_Chapter_StoryFromId",
                 table: "Chapter",
-                column: "StoryId");
+                column: "StoryFromId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Story_AuthorId",
+                table: "Story",
+                column: "AuthorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Story_StoryFandomId",

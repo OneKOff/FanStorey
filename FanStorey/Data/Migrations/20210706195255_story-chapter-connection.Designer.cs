@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FanStorey.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210706123628_PostDate")]
-    partial class PostDate
+    [Migration("20210706195255_story-chapter-connection")]
+    partial class storychapterconnection
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -31,21 +31,21 @@ namespace FanStorey.Data.Migrations
                     b.Property<string>("ChapterText")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ChapterTitle")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("LastUpdateDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("PostDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("StoryId")
+                    b.Property<int?>("StoryFromId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StoryId");
+                    b.HasIndex("StoryFromId");
 
                     b.ToTable("Chapter");
                 });
@@ -77,6 +77,9 @@ namespace FanStorey.Data.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastUpdateDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("PostDate")
                         .HasColumnType("datetime2");
@@ -298,9 +301,11 @@ namespace FanStorey.Data.Migrations
 
             modelBuilder.Entity("FanStorey.Models.Chapter", b =>
                 {
-                    b.HasOne("FanStorey.Models.Story", null)
-                        .WithMany("Chapters")
-                        .HasForeignKey("StoryId");
+                    b.HasOne("FanStorey.Models.Story", "StoryFrom")
+                        .WithMany()
+                        .HasForeignKey("StoryFromId");
+
+                    b.Navigation("StoryFrom");
                 });
 
             modelBuilder.Entity("FanStorey.Models.Story", b =>
@@ -367,11 +372,6 @@ namespace FanStorey.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("FanStorey.Models.Story", b =>
-                {
-                    b.Navigation("Chapters");
                 });
 #pragma warning restore 612, 618
         }
