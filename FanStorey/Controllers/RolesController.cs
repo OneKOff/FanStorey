@@ -10,7 +10,7 @@ namespace FanStorey.Controllers
 {
     public class RolesController : Controller
     {
-        /*RoleManager<IdentityRole> _roleManager;
+        RoleManager<IdentityRole> _roleManager;
         UserManager<IdentityUser> _userManager;
         public RolesController(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
         {
@@ -99,6 +99,6 @@ namespace FanStorey.Controllers
             }
 
             return NotFound();
-        }*/
+        }
     }
 }

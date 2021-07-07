@@ -17,7 +17,6 @@ namespace FanStorey.Models
         public DateTime PostDate { get; set; }
         [Display(Name = "Last Update Date"), DataType(DataType.DateTime)]
         public DateTime LastUpdateDate { get; set; }
-        public Story StoryFrom { get; set; }
         
         public Chapter() {}
     }

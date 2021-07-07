@@ -13,7 +13,7 @@ namespace FanStorey.Models
         public string Title { get; set; }
         [UIHint("MultilineText"), DataType(DataType.MultilineText)]
         public string Description { get; set; }
-        //public List<Chapter> Chapters { get; set; }
+        public List<Chapter> Chapters { get; set; }
         [Display(Name = "Story Fandom")]
         public Fandom StoryFandom { get; set; }
         public IdentityUser Author { get; set; }

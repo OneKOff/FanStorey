@@ -23,15 +23,14 @@ namespace FanStorey.Controllers
             _context = context;
         }
 
-        // GET: Stories
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index() => View(await _context.Story.ToListAsync());
+
+        public async Task<IActionResult> UserStories()
         {
-            //IdentityUser identityUser = await _userManager.GetUserAsync(HttpContext.User);
-            //await _context.Story.Where(m => m.Author == identityUser).ToListAsync();
-            return View(await _context.Story.ToListAsync());
+            IdentityUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            return View("Index", await _context.Story.Where(m => m.Author == currentUser).ToListAsync());
         }
 
-        // GET: Stories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -49,32 +48,33 @@ namespace FanStorey.Controllers
             return View(story);
         }
 
-        // GET: Stories/Create
         [Authorize]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            List<Fandom> fandomList = await _context.Fandom.ToListAsync();
+            ViewBag.Fandoms = new SelectList(fandomList, "Id", "Name");
             return View();
         }
 
-        // POST: Stories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description")] Story story)
+        public async Task<IActionResult> Create(StoryViewModel csvm)
         {
             if (ModelState.IsValid)
             {
                 // If admin, then Author is user which is used by admin
-                story.Author = await _userManager.GetUserAsync(HttpContext.User);
-                _context.Add(story);
+                //IdentityUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                //var userRole = await _context.UserRoles.FindAsync(currentUser);
+                //story.Author = currentUser;
+                csvm.StoryNew.StoryFandom = csvm.FandomSelected;
+
+                _context.Add(csvm.StoryNew);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(story);
+            return View(csvm.StoryNew);
         }
 
-        // GET: Stories/Edit/5
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -88,16 +88,14 @@ namespace FanStorey.Controllers
             {
                 return NotFound();
             }
-            if (story.Author == await _userManager.GetUserAsync(HttpContext.User))
+            /*if (story.Author == await _userManager.GetUserAsync(HttpContext.User))
             {
                 return View(story);
-            }
-            return NotFound();
+            }*/
+            return View(story);
+            //return NotFound();
         }
 
-        // POST: Stories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description")] Story story)
@@ -130,7 +128,6 @@ namespace FanStorey.Controllers
             return View(story);
         }
 
-        // GET: Stories/Delete/5
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -149,7 +146,6 @@ namespace FanStorey.Controllers
             return View(story);
         }
 
-        // POST: Stories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

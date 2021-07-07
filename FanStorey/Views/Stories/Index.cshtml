@@ -9,35 +9,40 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+@*Everything starts somewhere. This website as well. Sometimes I wonder if I'm doing the right thing. I feel really bad when I'm doing things I was forced to do that I don't like that much. Ironically, that's the only way I can do something at all. Self-development is really hard for me. I seem to procrastinate a lot, but when I'm reaching a deadline, I actually start working and cursing myself to not doing it earlier. I mean, it's not like I DON'T try to do anything. I'm trying to do something long before the time comes, but it doesn't last long before I eventually get bored and quit. Well, I wrote a lot of this. I wonder if I should actually try writing more, rather than torturing myself with programming. I came here for gamedev anyway.
+*@
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                <div class="col-md-4">Title/Description</div>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                <div class="col-md-2">Author</div>
             </th>
-            <th></th>
+            <th>
+                <div class="col-md-2">Fandom</div>
+            </th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                <a class="nav-link text-dark" asp-controller="Chapters" asp-action="Index" asp-route-id="@item.Id">
-                    @Html.DisplayFor(modelItem => item.Title)
-                </a>  
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a class="nav-link text-dark" asp-controller="Chapters" asp-action="Index" asp-route-id="@item.Id">
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </a>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Author)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StoryFandom.Name)
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

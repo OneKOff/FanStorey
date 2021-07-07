@@ -33,7 +33,7 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            return View(await _context.Chapter.Where(m => m.StoryFrom == story).ToListAsync());
+            return View(story);
         }
 
         public async Task<IActionResult> Read(int? id)
@@ -53,33 +53,24 @@ namespace FanStorey.Controllers
             return View(chapter);
         }
 
-        public async Task<IActionResult> Create(int? id)
-        {
-            Chapter chapter = new Chapter();
-            chapter.StoryFrom = await _context.Story.FindAsync(id);
-            return View(chapter);
-        }
+        public IActionResult Create() => View();
 
-        // POST: Chapters/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,ChapterText,StoryFrom")] Chapter chapter)
+        public async Task<IActionResult> Create(ChapterViewModel ccvm)
         {
             if (ModelState.IsValid)
             {
-                chapter.PostDate = DateTime.Now;
-                chapter.LastUpdateDate = DateTime.Now;
+                ccvm.ChapterNew.PostDate = DateTime.Now;
+                ccvm.ChapterNew.LastUpdateDate = DateTime.Now;
 
-                _context.Add(chapter);
+                _context.Add(ccvm.ChapterNew);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), ccvm.StoryFrom.Id);
             }
-            return View(chapter);
+            return View(ccvm.ChapterNew);
         }
 
-        // GET: Chapters/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -95,14 +86,11 @@ namespace FanStorey.Controllers
             return View(chapter);
         }
 
-        // POST: Chapters/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ChapterText")] Chapter chapter)
+        public async Task<IActionResult> Edit(int id, ChapterViewModel ccvm)
         {
-            if (id != chapter.Id)
+            if (id != ccvm.ChapterNew.Id)
             {
                 return NotFound();
             }
@@ -111,12 +99,13 @@ namespace FanStorey.Controllers
             {
                 try
                 {
-                    _context.Update(chapter);
+                    ccvm.ChapterNew.LastUpdateDate = DateTime.Now;
+                    _context.Update(ccvm.ChapterNew);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ChapterExists(chapter.Id))
+                    if (!ChapterExists(ccvm.ChapterNew.Id))
                     {
                         return NotFound();
                     }
@@ -125,12 +114,11 @@ namespace FanStorey.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return View("Index", ccvm.StoryFrom);
             }
-            return View(chapter);
+            return View(ccvm.ChapterNew);
         }
 
-        // GET: Chapters/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -148,7 +136,6 @@ namespace FanStorey.Controllers
             return View(chapter);
         }
 
-        // POST: Chapters/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
