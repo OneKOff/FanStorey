@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FanStorey.Data;
 using FanStorey.Models;
+using FanStorey.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 
@@ -25,10 +26,14 @@ namespace FanStorey.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Story.ToListAsync());
+            return View(await _context.Story.
+                Include(m => m.Author).
+                Include(m => m.Chapters).
+                Include(m => m.StoryFandom).
+                ToListAsync());
         }
 
-        public async Task<IActionResult> UserStories()
+        public async Task<IActionResult> CurrentUserStories()
         {
             IdentityUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
             return View("Index", await _context.Story.Where(m => m.Author == currentUser).ToListAsync());
@@ -61,21 +66,21 @@ namespace FanStorey.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(StoryViewModel csvm)
+        public async Task<IActionResult> Create([Bind("Id","Title","Description")] Story story, int FandomId)
         {
             if (ModelState.IsValid)
             {
-                // If admin, then Author is user which is used by admin
-                //IdentityUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
-                //var userRole = await _context.UserRoles.FindAsync(currentUser);
-                //story.Author = currentUser;
-                csvm.StoryNew.StoryFandom = csvm.FandomSelected;
+                IdentityUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                story.Author = currentUser;
+                story.PostDate = DateTime.Now;
+                story.LastUpdateDate = DateTime.Now;
+                story.StoryFandom = await _context.Fandom.FindAsync(FandomId);
 
-                _context.Add(csvm.StoryNew);
+                _context.Add(story);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index");
             }
-            return View(csvm.StoryNew);
+            return View(story);
         }
 
         [Authorize]
@@ -86,22 +91,28 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Story.FindAsync(id);
+            List<Fandom> fandomList = await _context.Fandom.ToListAsync();
+            ViewBag.Fandoms = new SelectList(fandomList, "Id", "Name");
+
+            var story = await _context.Story.
+                Include(m => m.Author).
+                Include(m => m.Chapters).
+                Include(m => m.StoryFandom).
+                FirstOrDefaultAsync(m => m.Id == id);
             if (story == null)
             {
                 return NotFound();
             }
-            /*if (story.Author == await _userManager.GetUserAsync(HttpContext.User))
+            if (story.Author == await _userManager.GetUserAsync(HttpContext.User))
             {
                 return View(story);
-            }*/
-            return View(story);
-            //return NotFound();
+            }
+            return NotFound();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description")] Story story)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description")] Story story, int FandomId)
         {
             if (id != story.Id)
             {
@@ -112,6 +123,9 @@ namespace FanStorey.Controllers
             {
                 try
                 {
+                    story.LastUpdateDate = DateTime.Now;
+                    story.StoryFandom = await _context.Fandom.FindAsync(FandomId);
+
                     _context.Update(story);
                     await _context.SaveChangesAsync();
                 }
@@ -126,7 +140,7 @@ namespace FanStorey.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index");
             }
             return View(story);
         }
@@ -156,7 +170,7 @@ namespace FanStorey.Controllers
             var story = await _context.Story.FindAsync(id);
             _context.Story.Remove(story);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         private bool StoryExists(int id)

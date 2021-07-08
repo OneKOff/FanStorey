@@ -14,7 +14,7 @@ namespace FanStorey.Models
         [UIHint("MultilineText"), DataType(DataType.MultilineText)]
         public string Description { get; set; }
         public List<Chapter> Chapters { get; set; }
-        [Display(Name = "Story Fandom")]
+        [Display(Name = "Fandom")]
         public Fandom StoryFandom { get; set; }
         public IdentityUser Author { get; set; }
         [Display(Name = "Posting Date"), DataType(DataType.DateTime)]

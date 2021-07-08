@@ -1,4 +1,5 @@
-﻿@model IEnumerable<FanStorey.Models.Story>
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<Story>
 
 @{
     ViewData["Title"] = "Index";
@@ -12,37 +13,70 @@
 
 @*Everything starts somewhere. This website as well. Sometimes I wonder if I'm doing the right thing. I feel really bad when I'm doing things I was forced to do that I don't like that much. Ironically, that's the only way I can do something at all. Self-development is really hard for me. I seem to procrastinate a lot, but when I'm reaching a deadline, I actually start working and cursing myself to not doing it earlier. I mean, it's not like I DON'T try to do anything. I'm trying to do something long before the time comes, but it doesn't last long before I eventually get bored and quit. Well, I wrote a lot of this. I wonder if I should actually try writing more, rather than torturing myself with programming. I came here for gamedev anyway.
 *@
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Title/Description
-            </th>
-            <th>
-                Author
-            </th>
-            <th>
-                Fandom
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+<div>
+    @foreach (Story story in Model)
+    {
+        @if (story.Author != null)
         {
-            <tr>
-                <td>
-                    <a class="nav-link text-dark font-weight-bold" asp-controller="Chapters" asp-action="Index" asp-route-id="@item.Id">
-                        @Html.DisplayFor(modelItem => item.Title)
-                    </a>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Author)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StoryFandom.Name)
-                </td>
-            </tr>
+            <h5>
+                <a class="text-dark font-weight-bold" asp-controller="Chapters" asp-action="Index"
+                    asp-route-id="@story.Id">@Html.DisplayFor(modelItem => story.Title)</a> (by <a 
+                    class="text-dark font-weight-bold" asp-controller="Users" asp-action="Details"
+                    asp-route-id="@story.Author.Id"> @Html.DisplayFor(modelItem => story.Author.UserName)</a>)
+            </h5>
         }
-    </tbody>
-</table>
+        else
+        {
+            <h5>
+                <a class="nav-link text-dark font-weight-bold" asp-controller="Chapters" asp-action="Index"
+                    asp-route-id="@story.Id">@Html.DisplayFor(modelItem => story.Title)</a>
+            </h5>
+        }
+
+        <div>Fandom: <a class="text-dark font-weight-bold" asp-controller="Fandoms" asp-action="Index" 
+            asp-route-id="@story.StoryFandom.Id">@story.StoryFandom.Name</a></div>
+        <div>Chapters: @story.Chapters.Count() (In Process)</div>
+        <div>Posted: @story.PostDate, Updated: @story.LastUpdateDate</div>
+        <h6 class="font-weight-bold">Description: </h6>
+        <div class="col-md-6">@story.Description</div>
+        <div>
+            <a asp-action="Edit" asp-route-id="@story.Id">Edit</a> |
+            <a asp-action="Delete" asp-route-id="@story.Id">Delete</a>
+        </div>
+        <hr />
+    }
+</div>
+    @*<table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Title/Description
+                    </th>
+                    <th>
+                        Author
+                    </th>
+                    <th>
+                        Fandom
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <a class="nav-link text-dark font-weight-bold" asp-controller="Chapters" asp-action="Index" asp-route-id="@item.Id">
+                                @Html.DisplayFor(modelItem => item.Title)
+                            </a>
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Author)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.StoryFandom.Name)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>*@

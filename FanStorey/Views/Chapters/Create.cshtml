@@ -1,4 +1,4 @@
-﻿@model FanStorey.Models.ChapterViewModel
+﻿@model FanStorey.Models.ViewModels.ChapterCreateViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -12,6 +12,7 @@
     <div class="col-md-8">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="StoryId" />
             <div class="form-group">
                 <label asp-for="ChapterNew.Title" class="control-label"></label>
                 <input asp-for="ChapterNew.Title" class="form-control" />
