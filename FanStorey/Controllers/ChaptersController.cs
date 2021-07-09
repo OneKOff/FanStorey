@@ -134,7 +134,7 @@ namespace FanStorey.Controllers
                         throw;
                     }
                 }
-                return View("Index", ViewBag.Story.Id);
+                return View("Index", ViewBag.Story.Id); //Remove&Change
             }
             return View(chapter);
         }
