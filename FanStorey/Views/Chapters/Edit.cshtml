@@ -1,4 +1,4 @@
-﻿@model FanStorey.Models.Chapter
+﻿@model FanStorey.Models.ViewModels.ChapterCreateViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -12,16 +12,18 @@
     <div class="col-md-8">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ChapterNew.Id" />
+            <input type="hidden" asp-for="StoryId" />
+            <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
             <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+                <label asp-for="ChapterNew.Title" class="control-label"></label>
+                <input asp-for="ChapterNew.Title" class="form-control" />
+                <span asp-validation-for="ChapterNew.Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ChapterText" class="control-label"></label>
-                <textarea asp-for="ChapterText" class="form-control" rows="15"></textarea>
-                <span asp-validation-for="ChapterText" class="text-danger"></span>
+                <label asp-for="ChapterNew.ChapterText" class="control-label"></label>
+                <textarea asp-for="ChapterNew.ChapterText" class="form-control" rows="15"></textarea>
+                <span asp-validation-for="ChapterNew.ChapterText" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

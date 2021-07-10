@@ -13,6 +13,7 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="StoryId" />
+            <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
             <div class="form-group">
                 <label asp-for="ChapterNew.Title" class="control-label"></label>
                 <input asp-for="ChapterNew.Title" class="form-control" />

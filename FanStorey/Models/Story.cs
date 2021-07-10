@@ -16,11 +16,13 @@ namespace FanStorey.Models
         public List<Chapter> Chapters { get; set; }
         [Display(Name = "Fandom")]
         public Fandom StoryFandom { get; set; }
-        public IdentityUser Author { get; set; }
+        public ApplicationUser Author { get; set; }
         [Display(Name = "Posting Date"), DataType(DataType.DateTime)]
         public DateTime PostDate { get; set; }
         [Display(Name = "Last Update Date"), DataType(DataType.DateTime)]
         public DateTime LastUpdateDate { get; set; }
+        public List<Comment> Comments { get; set; }
+        public List<StoryRating> StoryRatings { get; set; }
 
         public Story() {}
     }

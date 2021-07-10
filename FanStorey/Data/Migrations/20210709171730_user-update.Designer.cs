@@ -4,14 +4,16 @@ using FanStorey.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FanStorey.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210709171730_user-update")]
+    partial class userupdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,56 +50,6 @@ namespace FanStorey.Data.Migrations
                     b.ToTable("Chapter");
                 });
 
-            modelBuilder.Entity("FanStorey.Models.ChapterRating", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("ChapterId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RaterId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChapterId");
-
-                    b.HasIndex("RaterId");
-
-                    b.ToTable("ChapterRating");
-                });
-
-            modelBuilder.Entity("FanStorey.Models.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CommentText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CommenterId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("StoryId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommenterId");
-
-                    b.HasIndex("StoryId");
-
-                    b.ToTable("Comment");
-                });
-
             modelBuilder.Entity("FanStorey.Models.Fandom", b =>
                 {
                     b.Property<int>("Id")
@@ -111,28 +63,6 @@ namespace FanStorey.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Fandom");
-                });
-
-            modelBuilder.Entity("FanStorey.Models.Preference", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("PrefFandomId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("PrefFandomId");
-
-                    b.ToTable("Preference");
                 });
 
             modelBuilder.Entity("FanStorey.Models.Story", b =>
@@ -167,31 +97,6 @@ namespace FanStorey.Data.Migrations
                     b.HasIndex("StoryFandomId");
 
                     b.ToTable("Story");
-                });
-
-            modelBuilder.Entity("FanStorey.Models.StoryRating", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("RaterId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("StoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RaterId");
-
-                    b.HasIndex("StoryId");
-
-                    b.ToTable("StoryRating");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -404,9 +309,6 @@ namespace FanStorey.Data.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<bool>("Admin")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime>("LastVisitDate")
                         .HasColumnType("datetime2");
 
@@ -423,48 +325,9 @@ namespace FanStorey.Data.Migrations
                         .HasForeignKey("StoryId");
                 });
 
-            modelBuilder.Entity("FanStorey.Models.ChapterRating", b =>
-                {
-                    b.HasOne("FanStorey.Models.Chapter", null)
-                        .WithMany("ChapterRatings")
-                        .HasForeignKey("ChapterId");
-
-                    b.HasOne("FanStorey.Models.ApplicationUser", "Rater")
-                        .WithMany()
-                        .HasForeignKey("RaterId");
-
-                    b.Navigation("Rater");
-                });
-
-            modelBuilder.Entity("FanStorey.Models.Comment", b =>
-                {
-                    b.HasOne("FanStorey.Models.ApplicationUser", "Commenter")
-                        .WithMany()
-                        .HasForeignKey("CommenterId");
-
-                    b.HasOne("FanStorey.Models.Story", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("StoryId");
-
-                    b.Navigation("Commenter");
-                });
-
-            modelBuilder.Entity("FanStorey.Models.Preference", b =>
-                {
-                    b.HasOne("FanStorey.Models.ApplicationUser", null)
-                        .WithMany("Preferences")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("FanStorey.Models.Fandom", "PrefFandom")
-                        .WithMany()
-                        .HasForeignKey("PrefFandomId");
-
-                    b.Navigation("PrefFandom");
-                });
-
             modelBuilder.Entity("FanStorey.Models.Story", b =>
                 {
-                    b.HasOne("FanStorey.Models.ApplicationUser", "Author")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId");
 
@@ -475,19 +338,6 @@ namespace FanStorey.Data.Migrations
                     b.Navigation("Author");
 
                     b.Navigation("StoryFandom");
-                });
-
-            modelBuilder.Entity("FanStorey.Models.StoryRating", b =>
-                {
-                    b.HasOne("FanStorey.Models.ApplicationUser", "Rater")
-                        .WithMany()
-                        .HasForeignKey("RaterId");
-
-                    b.HasOne("FanStorey.Models.Story", null)
-                        .WithMany("StoryRatings")
-                        .HasForeignKey("StoryId");
-
-                    b.Navigation("Rater");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -541,23 +391,9 @@ namespace FanStorey.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FanStorey.Models.Chapter", b =>
-                {
-                    b.Navigation("ChapterRatings");
-                });
-
             modelBuilder.Entity("FanStorey.Models.Story", b =>
                 {
                     b.Navigation("Chapters");
-
-                    b.Navigation("Comments");
-
-                    b.Navigation("StoryRatings");
-                });
-
-            modelBuilder.Entity("FanStorey.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("Preferences");
                 });
 #pragma warning restore 612, 618
         }

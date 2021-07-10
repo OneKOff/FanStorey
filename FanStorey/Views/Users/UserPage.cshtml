@@ -1,0 +1,98 @@
+﻿@model FanStorey.Models.ViewModels.UserPageViewModel
+
+@{
+    ViewData["Title"] = "User Page";
+}
+
+<h1>@Model.User.UserName</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            User Name
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.User.UserName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.User.Email)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.User.Email)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.User.RegisterDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.User.RegisterDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.User.LastVisitDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.User.LastVisitDate)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.User.Id">Edit Data</a>
+</div>
+
+<br />
+<h4>User Stories</h4>
+
+<p>
+    <a asp-controller="Stories" asp-action="Create">Create New Story</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Chapters
+            </th>
+            <th>
+                Fandom
+            </th>
+            <th>
+                Posted
+            </th>
+            <th>
+                Last Update
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Story story in Model.UserStories)
+        {
+        <tr>
+            <td>
+                <a class="text-dark font-weight-bold" asp-controller="Chapters" asp-action="Index" asp-route-id="@story.Id">
+                    @Html.DisplayFor(modelItem => story.Title)
+                </a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => story.Chapters.Count)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => story.StoryFandom.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => story.PostDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => story.LastUpdateDate)
+            </td>
+            <td>
+                <a asp-controller="Stories" asp-action="Edit" asp-route-id="@story.Id">Edit</a> |
+                <a asp-controller="Stories" asp-action="Delete" asp-route-id="@story.Id">Delete</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

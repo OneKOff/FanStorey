@@ -25,9 +25,7 @@
 
 <hr />
 
-@*<p class="multiline">@Html.DisplayFor(model => model.ChapterText)</p>
-@Html.Raw("<pre-wrap>"+ Html.Encode(Model.ChapterText) + "</pre-wrap>")*@
-<p>@Html.Raw(Model.ChapterText.Replace("\r\n", "<br />"))</p>
+<p class="multiline">@Html.DisplayFor(model => model.ChapterText)</p>
 
 <div>
     <a asp-action="Edit" asp-route-id="@Model.Id">Previous</a> |

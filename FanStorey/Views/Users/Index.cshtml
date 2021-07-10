@@ -1,0 +1,46 @@
+﻿@model IEnumerable<FanStorey.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Registered Users";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                User Name
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                Register Date
+            </th>
+            <th>
+                Last Visit Date
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RegisterDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastVisitDate)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

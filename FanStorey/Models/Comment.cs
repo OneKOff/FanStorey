@@ -7,15 +7,13 @@ using System.Threading.Tasks;
 
 namespace FanStorey.Models
 {
-    public class StoryComment
+    public class Comment
     {
         public int Id { get; set; }
-        public IdentityUser Commenter { get; set; }
-        public Story CommentedStory { get; set; }
-
+        public ApplicationUser Commenter { get; set; }
         [DataType(DataType.MultilineText)]
-        public string Comment { get; set; }
+        public string CommentText { get; set; }
 
-        public StoryComment() {}
+        public Comment() {}
     }
 }

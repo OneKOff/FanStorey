@@ -13,14 +13,15 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                 <label asp-for="StoryFandom" class="control-label"></label>
-                 @Html.DropDownList("FandomId", ViewBag.Fandoms as SelectList)
+                <label asp-for="StoryFandom" class="control-label"></label>
+                @Html.DropDownList("FandomId", ViewBag.Fandoms as SelectList)
             </div>
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
@@ -39,16 +40,19 @@
     <a asp-controller="Chapters" asp-action="Create" asp-route-id="@Model.Id">
         Create new chapter
     </a>
-    @if (Model.Chapters != null)
+    @{int i = 0;} 
+    @foreach (Chapter chapter in Model.Chapters)
     {
-        @foreach (var item in Model.Chapters)
-        {
-            <h4>
-                <a class="nav-link text-dark" asp-controller="Chapters" asp-action="Read" asp-route="@item.Id">
-                    @Html.DisplayNameFor(chapter => item.Title)
-                </a>
-            </h4>
-        }
+        i++;
+        <p class="text-dark font-weight-bold">
+            <a class="text-dark font-weight-bold" asp-controller="Chapters" asp-action="Read" asp-route-id="@chapter.Id">
+                Chapter @i. @chapter.Title   </a>| 
+            <a asp-controller="Chapters" asp-action="Edit" asp-route-id="@chapter.Id">
+                Edit  </a>| 
+            <a asp-controller="Chapters" asp-action="Delete" asp-route-id="@chapter.Id">
+                Delete
+            </a>
+        </p>
     }
 </div>
 

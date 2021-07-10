@@ -61,13 +61,14 @@ namespace FanStorey.Controllers
         {
             ChapterCreateViewModel ccvm = new ChapterCreateViewModel();
             ccvm.StoryId = id;
+            ViewBag.returnUrl = Request.Headers["Referer"].ToString();
 
             return View(ccvm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ChapterCreateViewModel ccvm)
+        public async Task<IActionResult> Create(string returnUrl, ChapterCreateViewModel ccvm)
         {
             if (ModelState.IsValid)
             {
@@ -79,14 +80,14 @@ namespace FanStorey.Controllers
 
                 ccvm.ChapterNew.PostDate = DateTime.Now;
                 ccvm.ChapterNew.LastUpdateDate = DateTime.Now;
-
                 story.LastUpdateDate = DateTime.Now;
                 story.Chapters.Add(ccvm.ChapterNew);
 
                 _context.Add(ccvm.ChapterNew);
                 _context.Update(story);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index", new { story?.Id });
+
+                return Redirect(returnUrl);
             }
             return View(ccvm);
         }
@@ -103,14 +104,24 @@ namespace FanStorey.Controllers
             {
                 return NotFound();
             }
-            return View(chapter);
+            ChapterCreateViewModel ccvm = new ChapterCreateViewModel();
+            ccvm.ChapterNew = chapter;
+            Story story = await _context.Story.
+                Include(m => m.Author).
+                Include(m => m.Chapters).
+                Include(m => m.StoryFandom).
+                FirstOrDefaultAsync(m => m.Chapters.Contains(chapter));
+            ccvm.StoryId = story.Id;
+            ViewBag.returnUrl = Request.Headers["Referer"].ToString();
+
+            return View(ccvm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id","Title","ChapterText")] Chapter chapter)
+        public async Task<IActionResult> Edit(int id, string returnUrl, ChapterCreateViewModel ccvm)
         {
-            if (id != chapter.Id)
+            if (id != ccvm.ChapterNew.Id)
             {
                 return NotFound();
             }
@@ -119,13 +130,22 @@ namespace FanStorey.Controllers
             {
                 try
                 {
-                    chapter.LastUpdateDate = DateTime.Now;
-                    _context.Update(chapter);
+                    ccvm.ChapterNew.LastUpdateDate = DateTime.Now;
+                    _context.Update(ccvm.ChapterNew);
+
+                    Story story = await _context.Story.
+                        Include(m => m.Author).
+                        Include(m => m.Chapters).
+                        Include(m => m.StoryFandom).
+                        FirstOrDefaultAsync(m => m.Id == ccvm.StoryId);
+                    story.LastUpdateDate = DateTime.Now;
+                    _context.Update(story);
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ChapterExists(chapter.Id))
+                    if (!ChapterExists(ccvm.ChapterNew.Id))
                     {
                         return NotFound();
                     }
@@ -134,9 +154,9 @@ namespace FanStorey.Controllers
                         throw;
                     }
                 }
-                return View("Index", ViewBag.Story.Id); //Remove&Change
+                return Redirect(returnUrl);
             }
-            return View(chapter);
+            return View(ccvm);
         }
 
         public async Task<IActionResult> Delete(int? id)
@@ -161,9 +181,14 @@ namespace FanStorey.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var chapter = await _context.Chapter.FindAsync(id);
+            var story = await _context.Story.Include(m => m.Chapters).
+                FirstOrDefaultAsync(m => m.Chapters.Contains(chapter));
+
+            story.LastUpdateDate = DateTime.Now;
+
             _context.Chapter.Remove(chapter);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { story?.Id });
         }
 
         private bool ChapterExists(int id)

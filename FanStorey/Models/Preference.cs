@@ -10,7 +10,6 @@ namespace FanStorey.Models
     {
         public int Id { get; set; }
         public Fandom PrefFandom { get; set; }
-        public IdentityUser User { get; set; }
 
         public Preference() {}
     }

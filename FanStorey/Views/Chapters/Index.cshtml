@@ -22,15 +22,14 @@
         </tr>
     </thead>
     <tbody>
-    @if (Model.Chapters != null)
-    {
-        int i = 0;
+        @{ int i = 0; }
         @foreach (Chapter item in Model.Chapters)
         {
             i++;
             <tr>
                 <td>
-                    Chapter @i: @Html.DisplayFor(modelItem => item.Title)
+                    <a class="text-dark font-weight-bold" asp-action="Read"
+                       asp-route-id="@item.Id">Chapter @i. @Html.DisplayFor(modelItem => item.Title)</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.LastUpdateDate)
@@ -42,6 +41,5 @@
                 </td>
             </tr>
         }
-    }
     </tbody>
 </table>
