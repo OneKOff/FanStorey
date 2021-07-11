@@ -25,8 +25,8 @@
         else
         {
             <h5>
-                <a class="nav-link text-dark font-weight-bold" asp-controller="Chapters" asp-action="Index"
-                    asp-route-id="@story.Id">@Html.DisplayFor(modelItem => story.Title)</a>
+                <a class="text-dark font-weight-bold" asp-controller="Chapters" asp-action="Index"
+                    asp-route-id="@story.Id">@Html.DisplayFor(modelItem => story.Title)</a> (Unknown Author)
             </h5>
         }
 

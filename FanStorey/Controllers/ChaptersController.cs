@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using FanStorey.Data;
 using FanStorey.Models;
 using FanStorey.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace FanStorey.Controllers
 {
     public class ChaptersController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ChaptersController(ApplicationDbContext context)
+        public ChaptersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index(int? id)
@@ -27,7 +30,7 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Story.                
+            var story = await _context.User.
                 Include(m => m.Author).
                 Include(m => m.Chapters).
                 Include(m => m.StoryFandom).
@@ -36,6 +39,8 @@ namespace FanStorey.Controllers
             {
                 return NotFound();
             }
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            ViewBag.YourStory = (user.Admin || user == story.Author);
 
             return View(story);
         }
@@ -72,7 +77,7 @@ namespace FanStorey.Controllers
         {
             if (ModelState.IsValid)
             {
-                Story story = await _context.Story.
+                Story story = await _context.User.
                     Include(m => m.Author).
                     Include(m => m.Chapters).
                     Include(m => m.StoryFandom).
@@ -106,7 +111,7 @@ namespace FanStorey.Controllers
             }
             ChapterCreateViewModel ccvm = new ChapterCreateViewModel();
             ccvm.ChapterNew = chapter;
-            Story story = await _context.Story.
+            Story story = await _context.User.
                 Include(m => m.Author).
                 Include(m => m.Chapters).
                 Include(m => m.StoryFandom).
@@ -133,7 +138,7 @@ namespace FanStorey.Controllers
                     ccvm.ChapterNew.LastUpdateDate = DateTime.Now;
                     _context.Update(ccvm.ChapterNew);
 
-                    Story story = await _context.Story.
+                    Story story = await _context.User.
                         Include(m => m.Author).
                         Include(m => m.Chapters).
                         Include(m => m.StoryFandom).
@@ -181,7 +186,7 @@ namespace FanStorey.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var chapter = await _context.Chapter.FindAsync(id);
-            var story = await _context.Story.Include(m => m.Chapters).
+            var story = await _context.User.Include(m => m.Chapters).
                 FirstOrDefaultAsync(m => m.Chapters.Contains(chapter));
 
             story.LastUpdateDate = DateTime.Now;

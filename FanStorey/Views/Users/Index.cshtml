@@ -22,25 +22,67 @@
             <th>
                 Last Visit Date
             </th>
+            <th>
+                Privileges
+            </th>
+            <th>
+                Active
+            </th>
+            @if (ViewBag.Admin == true)
+            {
+                <th></th>
+            }
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
+        <tr>
+            <td>
+                <a class="nav-link text-dark" asp-controller="Users" asp-action="UserPage" asp-route-id="@item.Id">
                     @Html.DisplayFor(modelItem => item.UserName)
-                </td>
+                </a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RegisterDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastVisitDate)
+            </td>
+            @if (item.Admin == true)
+            {
                 <td>
-                    @Html.DisplayFor(modelItem => item.Email)
+                    Admin
                 </td>
+            }
+            else
+            {
                 <td>
-                    @Html.DisplayFor(modelItem => item.RegisterDate)
+                    —
                 </td>
+            }
+            @if (!item.Blocked && item.EmailConfirmed)
+            {
                 <td>
-                    @Html.DisplayFor(modelItem => item.LastVisitDate)
+                    +
                 </td>
-            </tr>
+            }
+            else
+            {
+                <td></td>
+            }
+            @if (ViewBag.Admin == true)
+            {
+                <td>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
+                    <a asp-action="Block" asp-route-id="@item.Id">Block</a> |
+                    <a asp-action="SwitchAdmin" asp-route-id="@item.Id">Admin</a>
+                </td>
+            }
+        </tr>
         }
     </tbody>
 </table>

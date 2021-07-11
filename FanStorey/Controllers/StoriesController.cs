@@ -26,7 +26,7 @@ namespace FanStorey.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Story.
+            return View(await _context.User.
                 Include(m => m.Author).
                 Include(m => m.Chapters).
                 Include(m => m.StoryFandom).
@@ -36,7 +36,7 @@ namespace FanStorey.Controllers
         public async Task<IActionResult> CurrentUserStories()
         {
             ApplicationUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            return View("Index", await _context.Story.
+            return View("Index", await _context.User.
                 Include(m => m.Author).
                 Include(m => m.Chapters).
                 Include(m => m.StoryFandom).
@@ -50,7 +50,7 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Story.
+            var story = await _context.User.
                 Include(m => m.Author).
                 Include(m => m.Chapters).
                 Include(m => m.StoryFandom).
@@ -64,22 +64,23 @@ namespace FanStorey.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(string id)
         {
             List<Fandom> fandomList = await _context.Fandom.ToListAsync();
-            ViewBag.Fandoms = new SelectList(fandomList, "Id", "Name");
             ViewBag.returnUrl = Request.Headers["Referer"].ToString();
+            ViewBag.Fandoms = new SelectList(fandomList, "Id", "Name");
+            ViewBag.UserId = id;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string returnUrl, [Bind("Id","Title","Description")] Story story, int FandomId)
+        public async Task<IActionResult> Create(string returnUrl, int FandomId, string userId, [Bind("Id,Title,Description")] Story story)
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
-                story.Author = currentUser;
+                ApplicationUser user = await _context.ApplicationUser.FindAsync(userId);
+                story.Author = user;
                 story.PostDate = DateTime.Now;
                 story.LastUpdateDate = DateTime.Now;
                 story.StoryFandom = await _context.Fandom.FindAsync(FandomId);
@@ -99,7 +100,7 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            Story story = await _context.Story.
+            Story story = await _context.User.
                 Include(m => m.Author).
                 Include(m => m.Chapters).
                 Include(m => m.StoryFandom).
@@ -122,7 +123,7 @@ namespace FanStorey.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, string returnUrl, [Bind("Id,Title,Description")] Story story, int FandomId)
+        public async Task<IActionResult> Edit(int id, string returnUrl, int FandomId, [Bind("Id,Title,Description")] Story story)
         {
             if (id != story.Id)
             {
@@ -163,7 +164,7 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            var story = await _context.Story
+            var story = await _context.User
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (story == null)
             {
@@ -177,15 +178,15 @@ namespace FanStorey.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var story = await _context.Story.FindAsync(id);
-            _context.Story.Remove(story);
+            var story = await _context.User.FindAsync(id);
+            _context.User.Remove(story);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
         private bool StoryExists(int id)
         {
-            return _context.Story.Any(e => e.Id == id);
+            return _context.User.Any(e => e.Id == id);
         }
     }
 }

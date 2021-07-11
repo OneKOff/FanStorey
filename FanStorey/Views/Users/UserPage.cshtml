@@ -35,16 +35,22 @@
         </dd>
     </dl>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.User.Id">Edit Data</a>
-</div>
+@if (Model.YourAccount)
+{
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.User.Id">Edit Data</a>
+    </div>
+}
 
 <br />
 <h4>User Stories</h4>
 
-<p>
-    <a asp-controller="Stories" asp-action="Create">Create New Story</a>
-</p>
+@if (Model.YourAccount)
+{
+    <p>
+        <a asp-controller="Stories" asp-action="Create" asp-route-id="@Model.User.Id">Create New Story</a>
+    </p>
+}
 
 <table class="table">
     <thead>
@@ -64,7 +70,10 @@
             <th>
                 Last Update
             </th>
-            <th></th>
+            @if (Model.YourAccount)
+            {
+                <th></th>
+            }
         </tr>
     </thead>
     <tbody>
@@ -88,10 +97,13 @@
             <td>
                 @Html.DisplayFor(modelItem => story.LastUpdateDate)
             </td>
-            <td>
-                <a asp-controller="Stories" asp-action="Edit" asp-route-id="@story.Id">Edit</a> |
-                <a asp-controller="Stories" asp-action="Delete" asp-route-id="@story.Id">Delete</a>
-            </td>
+            @if (Model.YourAccount)
+            {
+                <td>
+                    <a asp-controller="Stories" asp-action="Edit" asp-route-id="@story.Id">Edit</a> |
+                    <a asp-controller="Stories" asp-action="Delete" asp-route-id="@story.Id">Delete</a>
+                </td>
+            }
         </tr>
         }
     </tbody>
