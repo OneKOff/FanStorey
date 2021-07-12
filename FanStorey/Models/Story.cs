@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,16 +14,17 @@ namespace FanStorey.Models
         public string Title { get; set; }
         [UIHint("MultilineText"), DataType(DataType.MultilineText)]
         public string Description { get; set; }
-        public List<Chapter> Chapters { get; set; }
-        [Display(Name = "Fandom")]
-        public Fandom StoryFandom { get; set; }
-        public ApplicationUser Author { get; set; }
         [Display(Name = "Posting Date"), DataType(DataType.DateTime)]
         public DateTime PostDate { get; set; }
         [Display(Name = "Last Update Date"), DataType(DataType.DateTime)]
         public DateTime LastUpdateDate { get; set; }
-        public List<Comment> Comments { get; set; }
-        public List<StoryRating> StoryRatings { get; set; }
+
+        public List<Chapter> Chapters { get; set; }        
+
+        public int FandomId { get; set; }
+        public Fandom Fandom { get; set; }
+        public string UserId { get; set; }
+        public ApplicationUser User { get; set; }
 
         public Story() {}
     }

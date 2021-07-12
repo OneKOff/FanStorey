@@ -30,17 +30,17 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            var story = await _context.User.
-                Include(m => m.Author).
+            var story = await _context.Story.
+                Include(m => m.User).
                 Include(m => m.Chapters).
-                Include(m => m.StoryFandom).
+                Include(m => m.Fandom).
                 FirstOrDefaultAsync(m => m.Id == id);
             if (story == null)
             {
                 return NotFound();
             }
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            ViewBag.YourStory = (user.Admin || user == story.Author);
+            ViewBag.YourStory = (user != null && (user.Admin || story.User == user));
 
             return View(story);
         }
@@ -52,14 +52,18 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            var chapter = await _context.Chapter
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (chapter == null)
-            {
-                return NotFound();
-            }
+            int? storyId = GetStoryId(id);
 
+            var chapter = await _context.Chapter.
+                Include(m => m.Story).ThenInclude(m => m.Chapters).
+                FirstOrDefaultAsync(m => m.Id == id);
             return View(chapter);
+        }
+        public int? GetStoryId(int? id)
+        {
+            Chapter chapter = _context.Chapter.
+                FirstOrDefault(m => m.Id == id);
+            return chapter.StoryId;
         }
 
         public IActionResult Create(int? id)
@@ -77,10 +81,10 @@ namespace FanStorey.Controllers
         {
             if (ModelState.IsValid)
             {
-                Story story = await _context.User.
-                    Include(m => m.Author).
+                Story story = await _context.Story.
+                    Include(m => m.User).
                     Include(m => m.Chapters).
-                    Include(m => m.StoryFandom).
+                    Include(m => m.Fandom).
                     FirstOrDefaultAsync(m => m.Id == ccvm.StoryId);
 
                 ccvm.ChapterNew.PostDate = DateTime.Now;
@@ -111,10 +115,10 @@ namespace FanStorey.Controllers
             }
             ChapterCreateViewModel ccvm = new ChapterCreateViewModel();
             ccvm.ChapterNew = chapter;
-            Story story = await _context.User.
-                Include(m => m.Author).
+            Story story = await _context.Story.
+                Include(m => m.User).
                 Include(m => m.Chapters).
-                Include(m => m.StoryFandom).
+                Include(m => m.Fandom).
                 FirstOrDefaultAsync(m => m.Chapters.Contains(chapter));
             ccvm.StoryId = story.Id;
             ViewBag.returnUrl = Request.Headers["Referer"].ToString();
@@ -135,16 +139,17 @@ namespace FanStorey.Controllers
             {
                 try
                 {
-                    ccvm.ChapterNew.LastUpdateDate = DateTime.Now;
-                    _context.Update(ccvm.ChapterNew);
-
-                    Story story = await _context.User.
-                        Include(m => m.Author).
+                    Story story = await _context.Story.
+                        Include(m => m.User).
                         Include(m => m.Chapters).
-                        Include(m => m.StoryFandom).
+                        Include(m => m.Fandom).
                         FirstOrDefaultAsync(m => m.Id == ccvm.StoryId);
                     story.LastUpdateDate = DateTime.Now;
                     _context.Update(story);
+                    await _context.SaveChangesAsync();
+
+                    ccvm.ChapterNew.LastUpdateDate = DateTime.Now;
+                    _context.Update(ccvm.ChapterNew);
 
                     await _context.SaveChangesAsync();
                 }
@@ -186,7 +191,10 @@ namespace FanStorey.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var chapter = await _context.Chapter.FindAsync(id);
-            var story = await _context.User.Include(m => m.Chapters).
+            var story = await _context.Story.
+                Include(m => m.User).
+                Include(m => m.Chapters).
+                Include(m => m.Fandom).
                 FirstOrDefaultAsync(m => m.Chapters.Contains(chapter));
 
             story.LastUpdateDate = DateTime.Now;

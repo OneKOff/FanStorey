@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace FanStorey.Models.ViewModels
 {
-    public class ChapterViewModel
+    public class ChapterReadViewModel
     {
-        public Story StoryFrom { get; set; }
-        public Chapter ChapterNew { get; set; }
+        public Chapter Chapter { get; set; }
+        public Story Story { get; set; }
     }
 }

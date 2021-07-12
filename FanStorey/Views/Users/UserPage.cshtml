@@ -35,12 +35,6 @@
         </dd>
     </dl>
 </div>
-@if (Model.YourAccount)
-{
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.User.Id">Edit Data</a>
-    </div>
-}
 
 <br />
 <h4>User Stories</h4>
@@ -89,7 +83,7 @@
                 @Html.DisplayFor(modelItem => story.Chapters.Count)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => story.StoryFandom.Name)
+                @Html.DisplayFor(modelItem => story.Fandom.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => story.PostDate)

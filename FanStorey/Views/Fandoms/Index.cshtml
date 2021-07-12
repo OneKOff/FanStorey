@@ -6,16 +6,22 @@
 
 <h1>Index</h1>
 
+@if (ViewBag.Admin)
+{
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+}
 <table class="table">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
+            @if (ViewBag.Admin)
+            {
             <th></th>
+            }
         </tr>
     </thead>
     <tbody>
@@ -24,10 +30,12 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
+            @if (ViewBag.Admin)
+            {
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
             </td>
+            }
         </tr>
 }
     </tbody>

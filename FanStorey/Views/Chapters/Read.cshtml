@@ -27,8 +27,10 @@
 
 <p class="multiline">@Html.DisplayFor(model => model.ChapterText)</p>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Previous</a> |
-    <a asp-action="Edit" asp-route-id="@Model.Id">Chapter List</a> |
-    <a asp-action="Edit" asp-route-id="@Model.Id">Next</a>
-</div>
+<a asp-action="Index" asp-route-id="@Model.Story.Id">Chapter List</a>
+
+@*@{ int i = Model.Story.Chapters.IndexOf(Model); }*@
+@*<div>
+    @if (i != 0) { <div><a asp-action="Read" asp-route-id="@Model.Story.Chapters[i - 1].Id">Previous</a> | </div> }
+    @if (i != Model.Story.Chapters.Count - 1) { <div> | <a asp-action="Read" asp-route-id="@Model.Story.Chapters[i + 1].Id">Next</a></div> }
+</div>*@

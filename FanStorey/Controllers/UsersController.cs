@@ -28,7 +28,7 @@ namespace FanStorey.Controllers
         public async Task<IActionResult> Index()
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            ViewBag.Admin = user.Admin;
+            ViewBag.Admin = (user != null && user.Admin);
             return View(await _context.ApplicationUser.ToListAsync());
         }
 
@@ -40,11 +40,10 @@ namespace FanStorey.Controllers
             {
                 return NotFound();
             }
-            UserPageViewModel upvm = new UserPageViewModel(currentUser, await _context.User.
-                Include(m => m.Author).
+            UserPageViewModel upvm = new UserPageViewModel(currentUser, await _context.Story.
                 Include(m => m.Chapters).
-                Include(m => m.StoryFandom).
-                Where(m => m.Author == currentUser).
+                Include(m => m.Fandom).
+                Where(m => m.User == currentUser).
                 ToListAsync(),
                 true);
             return View("UserPage", upvm);
@@ -54,18 +53,15 @@ namespace FanStorey.Controllers
         {
             ApplicationUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
             ApplicationUser pageUser = await _context.ApplicationUser.
-                Include(m => m.Preferences).
-                ThenInclude(m => m.PrefFandom).
                 FirstOrDefaultAsync(m => m.Id == id);
             if (currentUser == null || pageUser == null)
             {
                 return NotFound();
             }
-            UserPageViewModel upvm = new UserPageViewModel(pageUser, await _context.User.
-                Include(m => m.Author).
+            UserPageViewModel upvm = new UserPageViewModel(pageUser, await _context.Story.
                 Include(m => m.Chapters).
-                Include(m => m.StoryFandom).
-                Where(m => m.Author == pageUser).
+                Include(m => m.Fandom).
+                Where(m => m.User == pageUser).
                 ToListAsync(), 
                 (currentUser != null && (currentUser.Id == id || currentUser.Admin)));
             return View(upvm);
@@ -79,8 +75,8 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            var user = await _context.ApplicationUser
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var user = await _context.ApplicationUser.
+                FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -93,9 +89,19 @@ namespace FanStorey.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var user = await _context.ApplicationUser.FindAsync(id);
+            var user = await _context.ApplicationUser.
+                FirstOrDefaultAsync(m => m.Id == id);
             bool deletedSelf = ( user == await _userManager.GetUserAsync(HttpContext.User) );
+            List<Story> userStories = await _context.Story.
+                Include(m => m.User).
+                Include(m => m.Chapters).
+                Include(m => m.Fandom).
+                Where(m => m.User == user).ToListAsync();
 
+            foreach (Story story in userStories)
+            {
+                _context.Story.Remove(story);
+            }
             _context.ApplicationUser.Remove(user);
             await _context.SaveChangesAsync();
 
@@ -116,17 +122,17 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            var user = await _context.ApplicationUser
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var user = await _context.ApplicationUser.
+                FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
             }
-
-            if (user.Blocked)
-                user.LockoutEnd = DateTime.MinValue;
-            else
-                user.LockoutEnd = DateTime.MaxValue;
+            if (user.Blocked)           
+                user.LockoutEnd = DateTimeOffset.Now;
+            else            
+                user.LockoutEnd = DateTimeOffset.MaxValue;            
+            user.Blocked = !user.Blocked;
             _context.ApplicationUser.Update(user);
             await _context.SaveChangesAsync();
 

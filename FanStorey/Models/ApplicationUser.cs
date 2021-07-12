@@ -12,9 +12,10 @@ namespace FanStorey.Models
         [Display(Name = "Registered")]
         public DateTime RegisterDate { get; set; }
         [Display(Name = "Last Visited")]
-        public DateTime LastVisitDate { get; set; }        
-        public List<Preference> Preferences { get; set; }
+        public DateTime LastVisitDate { get; set; }    
         public bool Admin { get; set; } = false;
         public bool Blocked { get; set; } = false;
+
+        public List<Story> Stories { get; set; }
     }
 }

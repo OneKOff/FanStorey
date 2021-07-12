@@ -10,9 +10,13 @@ namespace FanStorey.Models
     public class Comment
     {
         public int Id { get; set; }
-        public ApplicationUser Commenter { get; set; }
         [DataType(DataType.MultilineText)]
         public string CommentText { get; set; }
+
+        public string CommenterId { get; set; }
+        public ApplicationUser Commenter { get; set; }
+        public int StoryId { get; set; }
+        public Story Story { get; set; }
 
         public Comment() {}
     }

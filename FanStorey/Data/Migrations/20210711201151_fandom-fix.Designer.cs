@@ -4,14 +4,16 @@ using FanStorey.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FanStorey.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210711201151_fandom-fix")]
+    partial class fandomfix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,11 +122,11 @@ namespace FanStorey.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("AuthorId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("FandomId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("LastUpdateDate")
                         .HasColumnType("datetime2");
@@ -132,17 +134,17 @@ namespace FanStorey.Data.Migrations
                     b.Property<DateTime>("PostDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("StoryFandomId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("FandomId");
+                    b.HasIndex("AuthorId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("StoryFandomId");
 
                     b.ToTable("Story");
                 });
@@ -411,13 +413,13 @@ namespace FanStorey.Data.Migrations
             modelBuilder.Entity("FanStorey.Models.ChapterRating", b =>
                 {
                     b.HasOne("FanStorey.Models.Chapter", "Chapter")
-                        .WithMany()
+                        .WithMany("ChapterRatings")
                         .HasForeignKey("ChapterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FanStorey.Models.ApplicationUser", "Rater")
-                        .WithMany()
+                        .WithMany("ChapterRatings")
                         .HasForeignKey("RaterId");
 
                     b.Navigation("Chapter");
@@ -432,7 +434,7 @@ namespace FanStorey.Data.Migrations
                         .HasForeignKey("CommenterId");
 
                     b.HasOne("FanStorey.Models.Story", "Story")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("StoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -444,29 +446,27 @@ namespace FanStorey.Data.Migrations
 
             modelBuilder.Entity("FanStorey.Models.Story", b =>
                 {
-                    b.HasOne("FanStorey.Models.Fandom", "Fandom")
+                    b.HasOne("FanStorey.Models.ApplicationUser", "Author")
                         .WithMany("Stories")
-                        .HasForeignKey("FandomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AuthorId");
 
-                    b.HasOne("FanStorey.Models.ApplicationUser", "User")
-                        .WithMany("Stories")
-                        .HasForeignKey("UserId");
+                    b.HasOne("FanStorey.Models.Fandom", "StoryFandom")
+                        .WithMany()
+                        .HasForeignKey("StoryFandomId");
 
-                    b.Navigation("Fandom");
+                    b.Navigation("Author");
 
-                    b.Navigation("User");
+                    b.Navigation("StoryFandom");
                 });
 
             modelBuilder.Entity("FanStorey.Models.StoryRating", b =>
                 {
                     b.HasOne("FanStorey.Models.ApplicationUser", "Rater")
-                        .WithMany()
+                        .WithMany("StoryRatings")
                         .HasForeignKey("RaterId");
 
                     b.HasOne("FanStorey.Models.Story", "Story")
-                        .WithMany()
+                        .WithMany("StoryRatings")
                         .HasForeignKey("StoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -527,19 +527,27 @@ namespace FanStorey.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FanStorey.Models.Fandom", b =>
+            modelBuilder.Entity("FanStorey.Models.Chapter", b =>
                 {
-                    b.Navigation("Stories");
+                    b.Navigation("ChapterRatings");
                 });
 
             modelBuilder.Entity("FanStorey.Models.Story", b =>
                 {
                     b.Navigation("Chapters");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("StoryRatings");
                 });
 
             modelBuilder.Entity("FanStorey.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("ChapterRatings");
+
                     b.Navigation("Stories");
+
+                    b.Navigation("StoryRatings");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,21 +5,18 @@
 }
 
 <h1>All Stories</h1>
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <hr />
 
 <div>
     @foreach (Story story in Model)
     {
-        @if (story.Author != null)
+        @if (story.User != null)
         {
             <h5>
                 <a class="text-dark font-weight-bold" asp-controller="Chapters" asp-action="Index"
                     asp-route-id="@story.Id">@Html.DisplayFor(modelItem => story.Title)</a> (Author: <a 
-                    class="text-dark font-weight-bold" asp-controller="Users" asp-action="Details"
-                    asp-route-id="@story.Author.Id"> @Html.DisplayFor(modelItem => story.Author.UserName)</a>)
+                    class="text-dark font-weight-bold" asp-controller="Users" asp-action="UserPage"
+                    asp-route-id="@story.User.Id"> @Html.DisplayFor(modelItem => story.User.UserName)</a>)
             </h5>
         }
         else
@@ -29,10 +26,12 @@
                     asp-route-id="@story.Id">@Html.DisplayFor(modelItem => story.Title)</a> (Unknown Author)
             </h5>
         }
-
+        @if (story.Fandom != null)
+        {
         <div>Fandom: <a class="text-dark font-weight-bold" asp-controller="Fandoms" asp-action="Index" 
-            asp-route-id="@story.StoryFandom.Id">@story.StoryFandom.Name</a></div>
-        <div>Chapters: @story.Chapters.Count() (In Process)</div>
+            asp-route-id="@story.Fandom.Id">@story.Fandom.Name</a></div>
+        }
+        <div>Chapters: @story.Chapters.Count()</div>
         <div>Posted: @story.PostDate, Updated: @story.LastUpdateDate</div>
         <br />
         <h6 class="font-weight-bold">Description: </h6>

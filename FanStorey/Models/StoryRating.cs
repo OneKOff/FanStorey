@@ -9,8 +9,12 @@ namespace FanStorey.Models
     public class StoryRating
     {
         public int Id { get; set; }
-        public ApplicationUser Rater { get; set; }
         public int Value { get; set; }
+
+        public string RaterId { get; set; }
+        public ApplicationUser Rater { get; set; }
+        public int StoryId { get; set; }
+        public Story Story { get; set; }
 
         public StoryRating() {}
     }

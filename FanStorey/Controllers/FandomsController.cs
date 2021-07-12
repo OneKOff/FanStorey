@@ -7,21 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FanStorey.Data;
 using FanStorey.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace FanStorey.Controllers
 {
     public class FandomsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public FandomsController(ApplicationDbContext context)
+        public FandomsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Fandoms
         public async Task<IActionResult> Index()
         {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            ViewBag.Admin = user != null && user.Admin;
             return View(await _context.Fandom.ToListAsync());
         }
 

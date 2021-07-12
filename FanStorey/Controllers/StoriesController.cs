@@ -26,21 +26,21 @@ namespace FanStorey.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.User.
-                Include(m => m.Author).
+            return View(await _context.Story.
+                Include(m => m.User).
                 Include(m => m.Chapters).
-                Include(m => m.StoryFandom).
+                Include(m => m.Fandom).
                 ToListAsync());
         }
 
         public async Task<IActionResult> CurrentUserStories()
         {
             ApplicationUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            return View("Index", await _context.User.
-                Include(m => m.Author).
+            return View("Index", await _context.Story.
+                Include(m => m.User).
                 Include(m => m.Chapters).
-                Include(m => m.StoryFandom).
-                Where(m => m.Author == currentUser).ToListAsync());
+                Include(m => m.Fandom).
+                Where(m => m.User == currentUser).ToListAsync());
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -50,10 +50,10 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            var story = await _context.User.
-                Include(m => m.Author).
+            var story = await _context.Story.
+                Include(m => m.User).
                 Include(m => m.Chapters).
-                Include(m => m.StoryFandom).
+                Include(m => m.Fandom).
                 FirstOrDefaultAsync(m => m.Id == id);
             if (story == null)
             {
@@ -64,32 +64,37 @@ namespace FanStorey.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Create(string id)
+        public IActionResult Create(string id)
         {
-            List<Fandom> fandomList = await _context.Fandom.ToListAsync();
             ViewBag.returnUrl = Request.Headers["Referer"].ToString();
-            ViewBag.Fandoms = new SelectList(fandomList, "Id", "Name");
+            List<SelectListItem> selectListItems = new List<SelectListItem>();
+            foreach (Fandom fandom in _context.Fandom)
+            {
+                SelectListItem selectListItem = new SelectListItem
+                {
+                    Text = fandom.Name,
+                    Value = fandom.Id.ToString()
+                };
+                selectListItems.Add(selectListItem);
+            }
+            ViewData["FandomId"] = selectListItems;
             ViewBag.UserId = id;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string returnUrl, int FandomId, string userId, [Bind("Id,Title,Description")] Story story)
+        public async Task<IActionResult> Create(string returnUrl, Story story)
         {
-            if (ModelState.IsValid)
-            {
-                ApplicationUser user = await _context.ApplicationUser.FindAsync(userId);
-                story.Author = user;
-                story.PostDate = DateTime.Now;
-                story.LastUpdateDate = DateTime.Now;
-                story.StoryFandom = await _context.Fandom.FindAsync(FandomId);
+            ApplicationUser user = await _context.ApplicationUser.FindAsync(story.UserId);
+            story.User = user;
+            story.PostDate = DateTime.Now;
+            story.LastUpdateDate = DateTime.Now;
+            story.Fandom = await _context.Fandom.FindAsync(story.FandomId);
 
-                _context.Add(story);
-                await _context.SaveChangesAsync();
-                return Redirect(returnUrl);
-            }
-            return View(story);
+            _context.Add(story);
+            await _context.SaveChangesAsync();
+            return Redirect(returnUrl);
         }
 
         [Authorize]
@@ -100,30 +105,34 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            Story story = await _context.User.
-                Include(m => m.Author).
-                Include(m => m.Chapters).
-                Include(m => m.StoryFandom).
+            Story story = await _context.Story.
                 FirstOrDefaultAsync(m => m.Id == id);
-
-            List<Fandom> fandomList = await _context.Fandom.ToListAsync();
-            ViewBag.Fandoms = new SelectList(fandomList, "Id", "Name", story.StoryFandom.Id);
-            ViewBag.returnUrl = Request.Headers["Referer"].ToString();
-
             if (story == null)
             {
                 return NotFound();
             }
-            if (story.Author == await _userManager.GetUserAsync(HttpContext.User))
+
+            List<SelectListItem> selectListItems = new List<SelectListItem>();
+            foreach (Fandom fandom in _context.Fandom)
             {
-                return View(story);
+                SelectListItem selectListItem = new SelectListItem
+                {
+                    Text = fandom.Name,
+                    Value = fandom.Id.ToString(),
+                    Selected = fandom.Id == story.FandomId ? true : false 
+                };
+                selectListItems.Add(selectListItem);
             }
-            return NotFound();
+            ViewData["FandomId"] = selectListItems;
+            ViewBag.returnUrl = Request.Headers["Referer"].ToString();
+            ViewBag.UserId = story.UserId;
+
+            return View(story);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, string returnUrl, int FandomId, [Bind("Id,Title,Description")] Story story)
+        public async Task<IActionResult> Edit(int id, Story story, string returnUrl)
         {
             if (id != story.Id)
             {
@@ -135,7 +144,6 @@ namespace FanStorey.Controllers
                 try
                 {
                     story.LastUpdateDate = DateTime.Now;
-                    story.StoryFandom = await _context.Fandom.FindAsync(FandomId);
 
                     _context.Update(story);
                     await _context.SaveChangesAsync();
@@ -153,6 +161,7 @@ namespace FanStorey.Controllers
                 }
                 return Redirect(returnUrl);
             }
+
             return View(story);
         }
 
@@ -164,7 +173,7 @@ namespace FanStorey.Controllers
                 return NotFound();
             }
 
-            var story = await _context.User
+            var story = await _context.Story
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (story == null)
             {
@@ -178,15 +187,15 @@ namespace FanStorey.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var story = await _context.User.FindAsync(id);
-            _context.User.Remove(story);
+            var story = await _context.Story.FindAsync(id);
+            _context.Story.Remove(story);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
         private bool StoryExists(int id)
         {
-            return _context.User.Any(e => e.Id == id);
+            return _context.Story.Any(e => e.Id == id);
         }
     }
 }
